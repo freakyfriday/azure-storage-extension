@@ -17,7 +17,17 @@ azure.TableService.prototype.queryEntitiesContinuation = function (tableName, qu
 
                     if (maxContinuationCount === null || countinuationCount < maxContinuationCount) {
                         ++countinuationCount;
-                        operation(tableName, query, result.continuationToken);
+                        //update top
+                        if (query._top !== null) {
+                            query._top = query._top - data.length;
+                            if (query._top !== 0) {
+                                operation(tableName, query, result.continuationToken);
+                            } else {
+                                callback(error, result);
+                            }
+                        } else {
+                            operation(tableName, query, result.continuationToken);
+                        }
                     } else {
                         callback(error, result);
                     }
@@ -34,7 +44,7 @@ azure.TableService.prototype.queryEntitiesContinuation = function (tableName, qu
             } else {
 
                 result.entries.push(data);
-                callback(error, result.entries);
+                callback(error, result);
             }
         });
     };
